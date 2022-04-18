@@ -123,8 +123,13 @@ class AVL_Node:
             return self
         return self.balance()
 
-    def update_balance_parent(self, child: 'AVL_Node', prev_bl: int, inc: int) -> 'AVL_Node':
+    def update_balance_parent_insert(self, child: 'AVL_Node', prev_bl: int, inc: int) -> 'AVL_Node':
         if prev_bl == 0 and prev_bl != child._balance:
+            return self.update_balance(inc)
+        return self
+
+    def update_balance_parent_delete(self, child: 'AVL_Node', prev_bl: int, inc: int) -> 'AVL_Node':
+        if prev_bl != 0 and prev_bl != child._balance:
             return self.update_balance(inc)
         return self
 
@@ -151,7 +156,7 @@ class AVL_Node:
             nn = child.insert_rec(value)
             if nn is not None:
                 self.set_child(side, nn)
-                nn = self.update_balance_parent(child, prev_bl, inc)
+                nn = self.update_balance_parent_insert(child, prev_bl, inc)
         return nn
 
     def insert(self, value: int) -> 'AVL_Node':
@@ -180,18 +185,23 @@ class AVL_Node:
     def delete(self, value: int):
 
         nn: 'AVL_Node' = self
-        prev_bl: int = self._balance
         if self._value == value:
             nn = self.delete_the_node()
 
         elif value < self._value:
             if self._left is not None:
+                prev_bl: int = self._left._balance
                 self._left = self._left.delete(value)
                 if self._left is None:
-                    self.update_balance(-1)
+                    nn = self.update_balance(-1)
+                else:
+                    nn = self.update_balance_parent_delete(self._left, prev_bl, -1)
         else:
             if self._right is not None:
+                prev_bl: int = self._right._balance
                 self._right = self._right.delete(value)
-                if self._left is None:
-                    self.update_balance(+1)
+                if self._right is None:
+                    nn = self.update_balance(+1)
+                else:
+                    nn = self.update_balance_parent_delete(self._right, prev_bl, +1)
         return nn
