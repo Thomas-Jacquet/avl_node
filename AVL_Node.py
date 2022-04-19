@@ -30,6 +30,11 @@ class AVL_Node:
     def get_value(self) -> int:
         return self._value
 
+    def get_child(self, side: str):
+        if side == "l":
+            return self.get_left()
+        return self.get_right()
+
     def get_left(self) -> 'AVL_Node':
         return self._left
 
@@ -184,24 +189,24 @@ class AVL_Node:
 
     def delete(self, value: int):
 
-        nn: 'AVL_Node' = self
         if self._value == value:
-            nn = self.delete_the_node()
+            return self.delete_the_node()
 
-        elif value < self._value:
-            if self._left is not None:
-                prev_bl: int = self._left._balance
-                self._left = self._left.delete(value)
-                if self._left is None:
-                    nn = self.update_balance(-1)
-                else:
-                    nn = self.update_balance_parent_delete(self._left, prev_bl, -1)
-        else:
-            if self._right is not None:
-                prev_bl: int = self._right._balance
-                self._right = self._right.delete(value)
-                if self._right is None:
-                    nn = self.update_balance(+1)
-                else:
-                    nn = self.update_balance_parent_delete(self._right, prev_bl, +1)
-        return nn
+        inc: int = +1
+        side: str = "r"
+        child: 'AVL_Node' = self._right
+        new_node: 'AVL_Node' = self
+        if value < self._value:
+            inc = -1
+            side = "l"
+            child = self._left
+
+        if child is not None:
+            prev_bl: int = child._balance
+            self.set_child(side, child.delete(value))
+            child = self.get_child(side)
+            if child is None:
+                new_node = self.update_balance(inc)
+            else:
+                new_node = self.update_balance_parent_delete(child, prev_bl, inc)
+        return new_node
