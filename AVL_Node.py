@@ -105,7 +105,7 @@ class AVL_Node:
         if self._balance > 1:
             left: AVL_Node = self.get_left()
 
-            if left._balance >= 0:
+            if left._balance > 0:
                 return self.rot_right()
 
             self._left = left.rot_left()
@@ -114,7 +114,7 @@ class AVL_Node:
         elif self._balance < -1:
             right: AVL_Node = self.get_right()
 
-            if right._balance <= 0:
+            if right._balance < 0:
                 return self.rot_left()
 
             self._right = right.rot_right()
